@@ -1,0 +1,213 @@
+module barber.Barber where
+
+import barber.ImageJava (BufferedImage, ImageIO)
+
+{-
+Used to define the different scaling hints that the algorithm can use.
+--}
+data Method =
+  {-
+    Used to indicate that the scaling implementation should decide which
+    method to use in order to get the best looking scaled image in the
+    least amount of time.
+
+    The scaling algorithm will use the
+    {@link Scalr#THRESHOLD_QUALITY_BALANCED} or
+    {@link Scalr#THRESHOLD_BALANCED_SPEED} thresholds as cut-offs to
+    decide between selecting the <code>QUALITY</code>,
+    <code>BALANCED</code> or <code>SPEED</code> scaling algorithms.
+    <p/>
+    By default the thresholds chosen will give nearly the best looking
+    result in the fastest amount of time. We intend this method to work
+    for 80% of people looking to scale an image quickly and get a good
+    looking result.
+  --}
+  METHOD_AUTOMATIC |
+  {-
+    Used to indicate that the scaling implementation should scale as fast
+    as possible and return a result. For smaller images (800px in size)
+    this can result in noticeable aliasing but it can be a few magnitudes
+    times faster than using the QUALITY method.
+  --}
+  SPEED |
+  {-
+    Used to indicate that the scaling implementation should use a scaling
+    operation balanced between SPEED and QUALITY. Sometimes SPEED looks
+    too low quality to be useful (e.g. text can become unreadable when
+    scaled using SPEED) but using QUALITY mode will increase the
+    processing time too much. This mode provides a "better than SPEED"
+    quality in a "less than QUALITY" amount of time.
+  --}
+  BALANCED |
+  {-
+    Used to indicate that the scaling implementation should do everything
+    it can to create as nice of a result as possible. This approach is
+    most important for smaller pictures (800px or smaller) and less
+    important for larger pictures as the difference between this method
+    and the SPEED method become less and less noticeable as the
+    source-image size increases. Using the AUTOMATIC method will
+    automatically prefer the QUALITY method when scaling an image down
+    below 800px in size.
+  --}
+  QUALITY |
+  {-
+    Used to indicate that the scaling implementation should go above and
+    beyond the work done by {@link Method#QUALITY} to make the image look
+    exceptionally good at the cost of more processing time. This is
+    especially evident when generating thumbnails of images that look
+    jagged with some of the other {@link Method}s (even
+    {@link Method#QUALITY}).
+  --}
+  ULTRA_QUALITY
+
+{-
+Used to define the different modes of resizing that the algorithm
+can use.
+--}
+data Mode =
+  {-
+    Used to indicate that the scaling implementation should calculate
+    dimensions for the resultant image by looking at the image's
+    orientation and generating proportional dimensions that best fit into
+    the target width and height given
+
+    See "Image Proportions" in the {@link Scalr} class description for
+    more detail.
+  --}
+  MODE_AUTOMATIC |
+  {-
+    Used to fit the image to the exact dimensions given regardless of the
+    image's proportions. If the dimensions are not proportionally
+    correct, this will introduce vertical or horizontal stretching to the
+    image.
+    <p/>
+    It is recommended that you use one of the other <code>FIT_TO</code>
+    modes or {@link Mode#AUTOMATIC} if you want the image to look
+    correct, but if dimension-fitting is the #1 priority regardless of
+    how it makes the image look, that is what this mode is for.
+  --}
+  FIT_EXACT |
+  {-
+    Used to indicate that the scaling implementation should calculate
+    dimensions for the largest image that fit within the bounding box,
+    without cropping or distortion, retaining the original proportions.
+  --}
+  BEST_FIT_BOTH |
+  {-
+    Used to indicate that the scaling implementation should calculate
+    dimensions for the resultant image that best-fit within the given
+    width, regardless of the orientation of the image.
+  --}
+  FIT_TO_WIDTH |
+  {-
+    Used to indicate that the scaling implementation should calculate
+    dimensions for the resultant image that best-fit within the given
+    height, regardless of the orientation of the image.
+  --}
+  FIT_TO_HEIGHT
+
+{-
+Used to define the different types of rotations that can be applied to an
+image during a resize operation.
+--}
+data Rotation =
+  {-
+    90-degree, clockwise rotation (to the right). This is equivalent to a
+    quarter-turn of the image to the right; moving the picture on to its
+    right side.
+  --}
+  CW_90 |
+  {-
+    180-degree, clockwise rotation (to the right). This is equivalent to
+    1 half-turn of the image to the right; rotating the picture around
+    until it is upside down from the original position.
+  --}
+  CW_180 |
+  {-
+    270-degree, clockwise rotation (to the right). This is equivalent to
+    a quarter-turn of the image to the left; moving the picture on to its
+    left side.
+  --}
+  CW_270 |
+  {-
+    Flip the image horizontally by reflecting it around the y axis.
+    <p/>
+    This is not a standard rotation around a center point, but instead
+    creates the mirrored reflection of the image horizontally.
+    <p/>
+    More specifically, the vertical orientation of the image stays the
+    same (the top stays on top, and the bottom on bottom), but the right
+    and left sides flip. This is different than a standard rotation where
+    the top and bottom would also have been flipped.
+  --}
+  FLIP_HORZ |
+  {-
+    Flip the image vertically by reflecting it around the x axis.
+    <p/>
+    This is not a standard rotation around a center point, but instead
+    creates the mirrored reflection of the image vertically.
+    <p/>
+    More specifically, the horizontal orientation of the image stays the
+    same (the left stays on the left and the right stays on the right),
+    but the top and bottom sides flip. This is different than a standard
+    rotation where the left and right would also have been flipped.
+  --}
+  FLIP_VERT
+
+
+{-
+An utility function to create a BufferedImage out of a given file path. You can
+handle result as if it were a Either type result.
+--}
+readFromPath :: String -> IO (IOException | (MutableIO BufferedImage))
+readFromPath path = do
+   file   <- File.new path
+   ImageIO.readFromFile file
+
+{-
+Used to crop the given <code>src</code> image and apply any optional
+{@link BufferedImageOp}s to it before returning the result.
+<p/>
+<strong>TIP</strong>: This operation leaves the original <code>src</code>
+image unmodified. If the caller is done with the <code>src</code> image
+after getting the result of this operation, remember to call
+{@link BufferedImage#flush()} on the <code>src</code> to free up native
+resources and make it easier for the GC to collect the unused image.
+--}
+crop :: MutableIO BufferedImage -> Int -> Int -> Int -> Int -> IO (MutableIO BufferedImage)
+crop src x y width height = do
+  image     <- createOptimalImage src width height
+  graphics  <- image.getGraphics
+  srcWidth  <- image.getWidth
+  srcHeight <- image.getHeight
+  graphics.drawImage image 0 0 width height x y  (x + width) (y + height) Nothing
+  graphics.dispose
+  return image
+
+{-
+ Used to create a {@link BufferedImage} with the given dimensions and the
+ most optimal RGB TYPE ( {@link BufferedImage#TYPE_INT_RGB} or
+ {@link BufferedImage#TYPE_INT_ARGB} ) capable of being rendered into from
+ the given <code>src</code>.
+ <p/>
+ This does not perform a copy of the image data from <code>src</code> into
+ the result image; see {@link #copyToOptimalImage(BufferedImage)} for
+ that.
+ <p/>
+ We force all rendering results into one of these two types, avoiding the
+ case where a source image is of an unsupported (or poorly supported)
+ format by Java2D causing the rendering result to end up looking terrible
+ (common with GIFs) or be totally corrupt (e.g. solid black image).
+ <p/>
+ Originally reported by Magnus Kvalheim from Movellas when scaling certain
+ GIF and PNG images.
+--}
+createOptimalImage  :: MutableIO BufferedImage -> Int -> Int -> IO (MutableIO BufferedImage)
+createOptimalImage src width height = do
+  transparency   <- getOptimalType src.getTransparency
+  BufferedImage.new width height transparency
+
+getOptimalType :: IO Int -> IO Int
+getOptimalType transparency = transparency >>= \t -> return $ if t == BufferedImage.opaque
+                                                              then BufferedImage.type_int_rgb
+                                                              else BufferedImage.type_int_argb

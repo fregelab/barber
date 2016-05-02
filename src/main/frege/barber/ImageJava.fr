@@ -1,0 +1,21 @@
+module barber.ImageJava where
+
+data ImageObserver = native java.awt.image.ImageObserver
+
+data Graphics = native java.awt.Graphics where
+  native drawImage :: MutableIO Graphics -> MutableIO BufferedImage -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Maybe (MutableIO ImageObserver) -> IO Boolean
+  native dispose   :: MutableIO Graphics -> IO ()
+
+data BufferedImage = native java.awt.image.BufferedImage where
+  pure native opaque        java.awt.image.BufferedImage.OPAQUE        :: Int
+  pure native type_int_rgb  java.awt.image.BufferedImage.TYPE_INT_RGB  :: Int
+  pure native type_int_argb java.awt.image.BufferedImage.TYPE_INT_ARGB :: Int
+
+  native new             :: Int -> Int -> Int -> IO (MutableIO BufferedImage)
+  native getWidth        :: MutableIO BufferedImage -> IO Int
+  native getHeight       :: MutableIO BufferedImage -> IO Int
+  native getGraphics     :: MutableIO BufferedImage -> IO (MutableIO Graphics)
+  native getTransparency :: MutableIO BufferedImage -> IO Int
+
+data ImageIO = native javax.imageio.ImageIO where
+  native readFromFile javax.imageio.ImageIO.read :: MutableIO File -> IO (IOException | (MutableIO BufferedImage))

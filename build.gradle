@@ -1,0 +1,77 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "gradle.plugin.org.frege-lang:frege-gradle-plugin:0.7"
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4'
+        classpath 'commons-io:commons-io:2.4'
+    }
+}
+
+ext.libraries = [
+    frege_core: 'org.frege-lang:frege:3.23.288-gaa3af0c',
+    frege_repl: "org.frege-lang:frege-repl-core:1.2.1-SNAPSHOT",
+    frege_nati: "org.frege-lang:frege-native-gen:1.3",
+
+    slf4j: 'org.slf4j:slf4j-api:1.7.12'
+]
+
+apply plugin: 'java'
+apply plugin: "org.frege-lang"
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+repositories {
+    jcenter()
+    maven { url "https://oss.sonatype.org/content/groups/public" }
+}
+
+dependencies {
+    compile libraries.frege_core
+    compile libraries.frege_repl
+    compile libraries.frege_nati
+
+    compile libraries.slf4j
+}
+
+publishing {
+    publications {
+        mavenCustom(MavenPublication) {
+            groupId    releaseGroup
+            artifactId 'barber'
+            version    releaseVersion
+
+            from components.java
+        }
+    }
+}
+
+bintray {
+ /* Normally taken from ~/.gradle/gradle.properties */
+    user         = bintrayUser
+    key          = bintrayKey
+    publish      = false
+    publications = ['mavenCustom']
+    pkg {
+        repo            = 'maven'
+        name            = 'barber'
+        desc            =  releaseDescription
+        websiteUrl      = 'http://fregelab.github.io/barber/'
+        issueTrackerUrl = 'https://github.com/fregelab/barber/issues'
+        licenses        = ['Apache-2.0']
+        vcsUrl          = 'https://github.com/fregelab/barber.git'
+        labels          = ['frege', 'image']
+        version {
+            name      = releaseVersion
+            desc      = 'Barber Release'
+            released  = new Date()
+            vcsTag    = releaseVersion
+        }
+    }
+}
