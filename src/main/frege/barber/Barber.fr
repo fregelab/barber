@@ -159,10 +159,8 @@ data Rotation =
 An utility function to create a BufferedImage out of a given file path. You can
 handle result as if it were a Either type result.
 --}
-readFromPath :: String -> IO (IOException | (MutableIO BufferedImage))
-readFromPath path = do
-   file   <- File.new path
-   ImageIO.readFromFile file
+readFromPath :: String -> IO (IOException | BufferedImage)
+readFromPath path = File.new path >>= ImageIO.readFromFile
 
 {-
 Used to crop the given <code>src</code> image and apply any optional
@@ -174,7 +172,7 @@ after getting the result of this operation, remember to call
 {@link BufferedImage#flush()} on the <code>src</code> to free up native
 resources and make it easier for the GC to collect the unused image.
 --}
-crop :: MutableIO BufferedImage -> Int -> Int -> Int -> Int -> IO (MutableIO BufferedImage)
+crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO BufferedImage
 crop src x y width height = do
   image     <- createOptimalImage src width height
   graphics  <- image.getGraphics
@@ -202,12 +200,12 @@ crop src x y width height = do
  Originally reported by Magnus Kvalheim from Movellas when scaling certain
  GIF and PNG images.
 --}
-createOptimalImage  :: MutableIO BufferedImage -> Int -> Int -> IO (MutableIO BufferedImage)
+createOptimalImage  :: BufferedImage -> Int -> Int -> IO BufferedImage
 createOptimalImage src width height = do
-  transparency   <- getOptimalType src.getTransparency
-  BufferedImage.new width height transparency
+  transparency   <- src.getTransparency
+  BufferedImage.new width height (getOptimalType transparency)
 
-getOptimalType :: IO Int -> IO Int
-getOptimalType transparency = transparency >>= \t -> return $ if t == BufferedImage.opaque
-                                                              then BufferedImage.type_int_rgb
-                                                              else BufferedImage.type_int_argb
+getOptimalType :: Int -> Int
+getOptimalType transparency = if transparency == BufferedImage.opaque
+                              then BufferedImage.type_int_rgb
+                              else BufferedImage.type_int_argb

@@ -2,20 +2,20 @@ module barber.ImageJava where
 
 data ImageObserver = native java.awt.image.ImageObserver
 
-data Graphics = native java.awt.Graphics where
-  native drawImage :: MutableIO Graphics -> MutableIO BufferedImage -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Maybe (MutableIO ImageObserver) -> IO Boolean
-  native dispose   :: MutableIO Graphics -> IO ()
+data Graphics = mutable native java.awt.Graphics where
+  native drawImage :: Graphics -> BufferedImage -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Maybe (Mutable s ImageObserver) -> IO Boolean
+  native dispose   :: Graphics -> IO ()
 
-data BufferedImage = native java.awt.image.BufferedImage where
+data BufferedImage = mutable native java.awt.image.BufferedImage where
   pure native opaque        java.awt.image.BufferedImage.OPAQUE        :: Int
   pure native type_int_rgb  java.awt.image.BufferedImage.TYPE_INT_RGB  :: Int
   pure native type_int_argb java.awt.image.BufferedImage.TYPE_INT_ARGB :: Int
 
-  native new             :: Int -> Int -> Int -> IO (MutableIO BufferedImage)
-  native getWidth        :: MutableIO BufferedImage -> IO Int
-  native getHeight       :: MutableIO BufferedImage -> IO Int
-  native getGraphics     :: MutableIO BufferedImage -> IO (MutableIO Graphics)
-  native getTransparency :: MutableIO BufferedImage -> IO Int
+  native new             :: Int -> Int -> Int -> IO BufferedImage
+  native getWidth        :: BufferedImage -> IO Int
+  native getHeight       :: BufferedImage -> IO Int
+  native getGraphics     :: BufferedImage -> IO Graphics
+  native getTransparency :: BufferedImage -> IO Int
 
 data ImageIO = native javax.imageio.ImageIO where
-  native readFromFile javax.imageio.ImageIO.read :: MutableIO File -> IO (IOException | (MutableIO BufferedImage))
+  native readFromFile javax.imageio.ImageIO.read :: MutableIO File -> IO (IOException | BufferedImage)
