@@ -19,3 +19,4 @@ data BufferedImage = mutable native java.awt.image.BufferedImage where
 
 data ImageIO = native javax.imageio.ImageIO where
   native readFromFile javax.imageio.ImageIO.read :: MutableIO File -> IO (IOException | BufferedImage)
+  native writeToFile javax.imageio.ImageIO.write :: BufferedImage -> String -> MutableIO File -> IO (IOException | Boolean)

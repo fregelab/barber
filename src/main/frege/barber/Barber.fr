@@ -163,6 +163,14 @@ readFromPath :: String -> IO (IOException | BufferedImage)
 readFromPath path = File.new path >>= ImageIO.readFromFile
 
 {-
+Utility function to write a BufferedImage in a given path
+--}
+writeToPath :: String -> String -> BufferedImage -> IO (IOException | Boolean)
+writeToPath path format img  = do
+  file  <- File.new path
+  ImageIO.writeToFile img format file
+
+{-
 Used to crop the given <code>src</code> image and apply any optional
 {@link BufferedImageOp}s to it before returning the result.
 <p/>
