@@ -178,7 +178,7 @@ crop src x y width height = do
   graphics  <- image.getGraphics
   srcWidth  <- image.getWidth
   srcHeight <- image.getHeight
-  graphics.drawImage image 0 0 width height x y  (x + width) (y + height) Nothing
+  graphics.drawImage src 0 0 width height x y  (x + width) (y + height) Nothing
   graphics.dispose
   return image
 
