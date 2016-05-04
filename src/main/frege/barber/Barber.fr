@@ -2,6 +2,8 @@ module barber.Barber where
 
 import barber.ImageJava (BufferedImage, ImageIO)
 
+data BarberError = BarberError String
+
 {-
 Used to define the different scaling hints that the algorithm can use.
 --}
@@ -180,15 +182,16 @@ after getting the result of this operation, remember to call
 {@link BufferedImage#flush()} on the <code>src</code> to free up native
 resources and make it easier for the GC to collect the unused image.
 --}
-crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO BufferedImage
+crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO (BarberError | BufferedImage)
 crop src x y width height = do
   image     <- createOptimalImage src width height
   graphics  <- image.getGraphics
-  srcWidth  <- image.getWidth
-  srcHeight <- image.getHeight
-  graphics.drawImage src 0 0 width height x y  (x + width) (y + height) Nothing
-  graphics.dispose
-  return image
+  if (x < 0)
+    then return $ Left $ BarberError "x cannot be negative"
+    else do
+    graphics.drawImage src 0 0 width height x y  (x + width) (y + height) Nothing
+    graphics.dispose
+    return $ Right image
 
 {-
  Used to create a {@link BufferedImage} with the given dimensions and the
