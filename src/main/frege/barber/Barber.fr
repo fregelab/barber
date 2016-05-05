@@ -173,6 +173,27 @@ writeToPath path format img  = do
   ImageIO.writeToFile img format file
 
 {-
+Validation
+--}
+data RuleError    = RuleError String
+type Rule       a = (a -> (RuleError | a))
+
+validate :: a -> [Rule a] -> (RuleError | a)
+validate    x    []       = Right x
+validate    x    (f:fs)   = case (f x) of
+  Right _ -> validate x fs
+  Left  e -> Left e
+
+
+checkGtZero = \x -> if (x <= 0)
+               then Left $ RuleError (show x ++ " should be > 0")
+               else Right x
+
+checkXPlusYGtZ = \x \y \z -> if ((x + y) > z)
+                        then Left $ RuleError (show x ++ " + " ++ show y ++ " cannot be greater than" ++ show z)
+                        else Right x
+
+{-
 Used to crop the given <code>src</code> image and apply any optional
 {@link BufferedImageOp}s to it before returning the result.
 <p/>
@@ -182,16 +203,31 @@ after getting the result of this operation, remember to call
 {@link BufferedImage#flush()} on the <code>src</code> to free up native
 resources and make it easier for the GC to collect the unused image.
 --}
-crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO (BarberError | BufferedImage)
+crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO (RuleError | BufferedImage)
 crop src x y width height = do
-  image     <- createOptimalImage src width height
-  graphics  <- image.getGraphics
-  if (x < 0)
-    then return $ Left $ BarberError "x cannot be negative"
-    else do
-    graphics.drawImage src 0 0 width height x y  (x + width) (y + height) Nothing
-    graphics.dispose
-    return $ Right image
+  image      <- createOptimalImage src width height
+  graphics   <- image.getGraphics
+  case (validateCrop x y width height) of
+    Left  ex -> return $ Left ex
+    _        -> do
+      graphics.drawImage src 0 0 width height x y  (x + width) (y + height) Nothing
+      graphics.dispose
+      return $ Right image
+
+filterErrors :: [(RuleError | Int)] -> [(RuleError | Int)]
+filterErrors xs = filter isLeft xs
+  where isLeft = \el -> case el of
+          Left  _ -> true
+          Right _ -> false
+
+validateCrop :: Int -> Int -> Int -> Int -> (RuleError | Int)
+validateCrop x y width height = if (errorCount > 0)
+                                then head validationResults
+                                else Right x
+  where validators = [checkGtZero]
+        results    = validate <$> [x, y, width, height] <*> [validators]
+        errors     = filterErrors results
+        errorCount = length errors
 
 {-
  Used to create a {@link BufferedImage} with the given dimensions and the
