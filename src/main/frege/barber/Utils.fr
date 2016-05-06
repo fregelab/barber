@@ -1,0 +1,31 @@
+module barber.Utils where
+
+{-
+Extracts from a list of 'Either' all the 'Left' elements.
+All the 'Left' elements are extracted in order.
+
+==== __Examples__
+
+Basic usage:
+
+>>> let list = [ Left "foo", Right 3, Left "bar", Right 7, Left "baz" ]
+>>> lefts list
+["foo","bar","baz"]
+--}
+lefts    :: [Either a b] -> [a]
+lefts xs = [a | Left a <- xs]
+
+{-
+Extracts from a list of 'Either' all the 'Right' elements.
+All the 'Right' elements are extracted in order.
+
+==== __Examples__
+
+Basic usage:
+
+>>> let list = [ Left "foo", Right 3, Left "bar", Right 7, Left "baz" ]
+>>> rights list
+[3,7]
+--}
+rights   :: [Either a b] -> [b]
+rights x = [a | Right a <- x]
