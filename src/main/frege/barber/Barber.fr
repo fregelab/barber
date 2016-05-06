@@ -206,17 +206,18 @@ after getting the result of this operation, remember to call
 resources and make it easier for the GC to collect the unused image.
 --}
 crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO (RuleError | BufferedImage)
-crop src x y width height = do
-  image      <- createOptimalImage src width height
-  graphics   <- image.getGraphics
-  let validation = validateCrop x y width height
+crop src x y width height =
+  let validation = validateCrop x y width height in
   case (validation) of
     Left ex -> return $ Left ex
     Right _ -> do
+      image      <- createOptimalImage src width height
+      graphics   <- image.getGraphics
       graphics.drawImage src 0 0 width height x y  (x + width) (y + height) Nothing
       graphics.dispose
       return $ Right image
 
+-- Validates crop parameters
 validateCrop :: Int -> Int -> Int -> Int -> (RuleError | Int)
 validateCrop x y width height = if (errorCount > 0)
                                 then Left $ head errors
