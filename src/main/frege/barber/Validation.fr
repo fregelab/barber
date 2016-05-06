@@ -1,0 +1,22 @@
+module barber.Validation where
+{-
+Validation
+--}
+data RuleError    = RuleError String
+type Rule       a = (a -> (RuleError | a))
+
+validate :: a -> [Rule a] -> (RuleError | a)
+validate    x    []       = Right x
+validate    x    (f:fs)   = case (f x) of
+  Right _ -> validate x fs
+  Left  e -> Left e
+
+geZero = \x -> if (x <= 0)
+               then Left $ RuleError (show x ++ " should be > 0")
+               else Right x
+
+xPlusYGtZ = \xs -> case xs of
+  [x,y,z]  -> if ((x + y) > z)
+              then Left $ RuleError (show x ++ " + " ++ show y ++ " cannot be greater than" ++ show z)
+              else Right xs
+  _        -> Left $ RuleError "Empty params"

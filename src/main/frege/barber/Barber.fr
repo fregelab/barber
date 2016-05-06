@@ -2,6 +2,7 @@ module barber.Barber where
 
 import barber.Utils (lefts)
 import barber.ImageJava (BufferedImage, ImageIO)
+import barber.Validation (RuleError, Rule, validate, geZero, xPlusYGtZ)
 
 data BarberError = BarberError String
 
@@ -174,28 +175,6 @@ writeToPath path format img  = do
   ImageIO.writeToFile img format file
 
 {-
-Validation
---}
-data RuleError    = RuleError String
-type Rule       a = (a -> (RuleError | a))
-
-validate :: a -> [Rule a] -> (RuleError | a)
-validate    x    []       = Right x
-validate    x    (f:fs)   = case (f x) of
-  Right _ -> validate x fs
-  Left  e -> Left e
-
-checkGtZero = \x -> if (x <= 0)
-               then Left $ RuleError (show x ++ " should be > 0")
-               else Right x
-
-checkXPlusYGtZ = \xs -> case xs of
-  [x,y,z]  -> if ((x + y) > z)
-              then Left $ RuleError (show x ++ " + " ++ show y ++ " cannot be greater than" ++ show z)
-              else Right xs
-  _        -> Left $ RuleError "Empty params"
-
-{-
 Used to crop the given <code>src</code> image and apply any optional
 {@link BufferedImageOp}s to it before returning the result.
 <p/>
@@ -223,8 +202,8 @@ validateCrop x y width height = if (errorCount > 0)
                                 then Left $ head errors
                                 else Right x
   where params = [x, y, width, height]
-        natural    = lefts $ validate <$> params <*> [[checkGtZero]]
-        boundaries = lefts $ [validate params [checkXPlusYGtZ]]
+        natural    = lefts $ validate <$> params <*> [[geZero]]
+        boundaries = lefts $ [validate params [xPlusYGtZ]]
         errors     = natural ++ boundaries
         errorCount = length errors
 
