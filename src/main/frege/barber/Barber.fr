@@ -255,13 +255,14 @@ Java 2D.  <p/> This method uses the Oracle-encouraged method of
 the given interpolation hint value used to indicate the method that
 {@link Graphics2D} should use when scaling the image.
 --}
-scaleImage2d :: BufferedImage -> Int -> Int -> Int -> IO BufferedImage
-scaleImage2d src width height hint = do
-  result         <- createOptimalImage src width height
-  resultGraphics <- result.getGraphics
--- #TODO result.getGraphics always is cast to Graphics2D but
--- frege doesn't allow the casting
--- graphics.setRenderingHint hint
-  resultGraphics.drawImage6 src 0 0 width height Nothing
-  resultGraphics.dispose
-  return result
+scaleImage2d :: BufferedImage -> Int -> Int -> Int -> IO (RuleError | BufferedImage)
+scaleImage2d src width height hint =
+  let validation = validateCrop 0 0 width height in
+  case (validation) of
+    Left ex -> return $ Left ex
+    Right _ -> do
+      result         <- createOptimalImage src width height
+      resultGraphics <- result.getGraphics
+      resultGraphics.drawImage6 src 0 0 width height Nothing
+      resultGraphics.dispose
+      return $ Right result
