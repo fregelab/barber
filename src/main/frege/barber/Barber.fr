@@ -4,8 +4,6 @@ import barber.Utils (lefts)
 import barber.ImageJava (BufferedImage, ImageIO)
 import barber.Validation (RuleError, Rule, validate, geZero, xPlusYGtZ)
 
-data BarberError = BarberError String
-
 {-
 Used to define the different scaling hints that the algorithm can use.
 --}
