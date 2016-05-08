@@ -196,7 +196,7 @@ crop src x y width height =
     Right _ -> do
       image      <- createOptimalImage src width height
       graphics   <- image.getGraphics
-      graphics.drawImage src 0 0 width height x y  (x + width) (y + height) Nothing
+      graphics.drawImage10 src 0 0 width height x y  (x + width) (y + height) Nothing
       graphics.dispose
       return $ Right image
 
@@ -232,9 +232,28 @@ validateCrop x y width height = if (errorCount > 0)
 createOptimalImage  :: BufferedImage -> Int -> Int -> IO BufferedImage
 createOptimalImage src width height = do
   transparency   <- src.getTransparency
-  BufferedImage.new width height (getOptimalType transparency)
+  BufferedImage.new width height $ getOptimalType transparency
 
 getOptimalType :: Int -> Int
 getOptimalType transparency = if transparency == BufferedImage.opaque
                               then BufferedImage.type_int_rgb
                               else BufferedImage.type_int_argb
+
+
+{-
+Used to implement a straight-forward image-scaling operation using
+Java 2D.  <p/> This method uses the Oracle-encouraged method of
+<code>Graphics2D.drawImage(...)</code> to scale the given image with
+the given interpolation hint value used to indicate the method that
+{@link Graphics2D} should use when scaling the image.
+--}
+scaleImage2d :: BufferedImage -> Int -> Int -> Int -> IO BufferedImage
+scaleImage2d src width height hint = do
+  result         <- createOptimalImage src width height
+  resultGraphics <- result.getGraphics
+-- #TODO result.getGraphics always is cast to Graphics2D but
+-- frege doesn't allow the casting
+-- graphics.setRenderingHint hint
+  resultGraphics.drawImage6 src 0 0 width height Nothing
+  resultGraphics.dispose
+  return result

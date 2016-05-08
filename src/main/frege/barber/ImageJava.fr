@@ -1,10 +1,14 @@
+{-
+Definitions for native components found in packages @java.awt.image@
+--}
 module barber.ImageJava where
 
 data ImageObserver = native java.awt.image.ImageObserver
 
 data Graphics = mutable native java.awt.Graphics where
-  native drawImage :: Graphics -> BufferedImage -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Maybe (Mutable s ImageObserver) -> IO Boolean
-  native dispose   :: Graphics -> IO ()
+  native drawImage6  drawImage :: Graphics -> BufferedImage -> Int -> Int -> Int -> Int -> Maybe (Mutable s ImageObserver) -> IO Boolean
+  native drawImage10 drawImage :: Graphics -> BufferedImage -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Int -> Maybe (Mutable s ImageObserver) -> IO Boolean
+  native dispose               :: Graphics -> IO ()
 
 data BufferedImage = mutable native java.awt.image.BufferedImage where
   pure native opaque        java.awt.image.BufferedImage.OPAQUE        :: Int
