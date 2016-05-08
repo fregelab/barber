@@ -2,8 +2,13 @@ module barber.Validation where
 {-
 Validation
 --}
+-- tag::rule_error[]
 data RuleError    = RuleError String
+-- end::rule_error[]
+
+-- tag::rule[]
 type Rule       a = (a -> (RuleError | a))
+-- end::rule[]
 
 validate :: a -> [Rule a] -> (RuleError | a)
 validate    x    []       = Right x

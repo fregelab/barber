@@ -1,0 +1,20 @@
+= Barber
+:revnumber: 0.1.0
+:numbered:
+:imagesDir: images/
+:baseDir: ../../..
+:stem:
+
+:srcCode: {baseDir}/src/main/frege
+
+"A barber (from the Latin barba, 'beard') is a person whose occupation
+is mainly to cut, dress, groom, style and shave men's and boys' hair..."
+-- https://en.wikipedia.org/wiki/Barber
+
+include::intro.adoc[]
+
+include::io.adoc[]
+
+include::actions.adoc[]
+
+include::icons.adoc[]

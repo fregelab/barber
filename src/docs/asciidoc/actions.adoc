@@ -1,0 +1,60 @@
+== Actions
+
+=== Validation
+
+When validating preconditions, Barber will make use of validation
+**rules**. `Rule` definition can be found at `barber.Validation`
+module:
+
+[source, haskell]
+.Rule
+----
+include::{srcCode}/barber/Validation.fr[tags=rule]
+----
+
+A `Rule` is just a function validating a given value. If the value is
+correct the function should return the same value, otherwise it should
+return a `RuleError`.
+
+[source, haskell]
+.RuleError
+----
+include::{srcCode}/barber/Validation.fr[tags=rule_error]
+----
+
+A `RuleError` is a way of representing a failing precondition. It
+should carry a message informing about what was wrong.
+
+Every non pure action in Barber will end with an `Either` value. The
+successful outcome may vary, but the failure error will always be a
+`RuleError`.
+
+=== Crop
+
+"Cropping refers to the removal of the outer parts of an image to improve framing, accentuate subject matter or change aspect ratio..."
+-- https://en.wikipedia.org/wiki/Cropping_(image)
+
+The crop function looks like this:
+
+[source, haskell]
+.Cropping
+----
+include::{srcCode}/barber/Barber.fr[tags=crop_signature]
+----
+
+To crop an image required params are (in order):
+
+* `src`: The source `BufferedImage` we would like to crop
+* `x`: The `x` coordinate where the cropping action starts. It's an
+  `Int` value.
+* `y`: The `y` coordinate where the cropping action starts. It's an
+  `Int` value.
+* `width`: The width of the crop. It's an `Int` value.
+* `height`: The height of the crop. It's an `Int` value.
+
+If the action over the image was processed ok then you'll get the
+modified `BufferedImage` otherwise you'll get an `RuleError`.
+
+=== Resize
+
+#TODO

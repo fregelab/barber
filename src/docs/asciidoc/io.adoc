@@ -1,0 +1,30 @@
+== IO
+
+There's no point on having functions to modify an image if you can't
+read or write them right ? You can find functions to retrieve and
+write images in `barber.Barber` module:
+
+NOTE: IO functions will probably be re-design on next
+versions. Specially to follow a common error handling design.
+
+=== Read
+
+In order to get a `BufferedImage` this function needs the path of the
+file containing the image. It may return either an `IOException` or
+the image itself.
+
+[source,haskell]
+----
+include::{srcCode}/barber/Barber.fr[tags=read]
+----
+
+=== Write
+
+In order to write a `BufferedImage` this function needs the path of
+the destination file. It may return either an `IOException` or
+a positive `Boolean` value (True)..
+
+[source,haskell]
+----
+include::{srcCode}/barber/Barber.fr[tags=write]
+----

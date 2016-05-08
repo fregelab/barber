@@ -1,0 +1,4 @@
+== Intro
+
+**Barber** is a `Frege` (http://frege-lang.org) library to cut, dress,
+  groom, style... **images**.

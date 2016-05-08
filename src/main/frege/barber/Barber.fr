@@ -163,13 +163,17 @@ data Rotation =
 An utility function to create a BufferedImage out of a given file path. You can
 handle result as if it were a Either type result.
 --}
+-- tag::read[]
 readFromPath :: String -> IO (IOException | BufferedImage)
+-- end::read[]
 readFromPath path = File.new path >>= ImageIO.readFromFile
 
 {-
 Utility function to write a BufferedImage in a given path
 --}
+-- tag::write[]
 writeToPath :: String -> String -> BufferedImage -> IO (IOException | Boolean)
+-- end::write[]
 writeToPath path format img  = do
   file  <- File.new path
   ImageIO.writeToFile img format file
@@ -184,7 +188,9 @@ after getting the result of this operation, remember to call
 {@link BufferedImage#flush()} on the <code>src</code> to free up native
 resources and make it easier for the GC to collect the unused image.
 --}
+-- tag::crop_signature[]
 crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO (RuleError | BufferedImage)
+-- end::crop_signature[]
 crop src x y width height =
   let validation = validateCrop x y width height in
   case (validation) of
