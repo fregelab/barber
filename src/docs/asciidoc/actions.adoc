@@ -14,7 +14,7 @@ include::{srcCode}/barber/Validation.fr[tags=rule]
 
 A `Rule` is just a function validating a given value. If the value is
 correct the function should return the same value, otherwise it should
-return a `RuleError`.
+return a `RuleError` which is a special type of `BarberError`.
 
 [source, haskell]
 .RuleError
@@ -27,7 +27,7 @@ should carry a message informing about what was wrong.
 
 Every non pure action in Barber will end with an `Either` value. The
 successful outcome may vary, but the failure error will always be a
-`RuleError`.
+`BarberError`.
 
 === Crop
 

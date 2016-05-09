@@ -2,7 +2,7 @@ module barber.Barber where
 
 import barber.Utils (lefts)
 import barber.ImageJava (BufferedImage, ImageIO)
-import barber.Validation (RuleError, Rule, validate, geZero, xPlusYGtZ)
+import barber.Validation (BarberError, Rule, validate, geZero, xPlusYGtZ)
 
 {-
 Used to define the different scaling hints that the algorithm can use.
@@ -162,26 +162,26 @@ An utility function to create a BufferedImage out of a given file path. You can
 handle result as if it were a Either type result.
 --}
 -- tag::read[]
-readFromPath :: String -> IO (RuleError | BufferedImage)
+readFromPath :: String -> IO (BarberError | BufferedImage)
 -- end::read[]
 readFromPath path = do
     file  <- File.new path
     image <- ImageIO.readFromFile file
     return $ case image of
-      Left  ex  -> Left $ RuleError ex.getMessage
+      Left  ex  -> Left $ BarberError ex.getMessage
       Right img -> Right img
 
 {-
 Utility function to write a BufferedImage in a given path
 --}
 -- tag::write[]
-writeToPath :: String -> String -> BufferedImage -> IO (RuleError | Boolean)
+writeToPath :: String -> String -> BufferedImage -> IO (BarberError | Boolean)
 -- end::write[]
 writeToPath path format img  = do
   file   <- File.new path
   result <- ImageIO.writeToFile img format file
   return $ case result of
-    Left  ex  -> Left $ RuleError ex.getMessage
+    Left  ex  -> Left $ BarberError ex.getMessage
     Right img -> Right img
 
 {-
@@ -195,7 +195,7 @@ after getting the result of this operation, remember to call
 resources and make it easier for the GC to collect the unused image.
 --}
 -- tag::crop_signature[]
-crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO (RuleError | BufferedImage)
+crop :: BufferedImage -> Int -> Int -> Int -> Int -> IO (BarberError | BufferedImage)
 -- end::crop_signature[]
 crop src x y width height =
   let validation = validateCrop x y width height in
@@ -209,7 +209,7 @@ crop src x y width height =
       return $ Right image
 
 -- Validates crop parameters
-validateCrop :: Int -> Int -> Int -> Int -> (RuleError | Int)
+validateCrop :: Int -> Int -> Int -> Int -> (BarberError | Int)
 validateCrop x y width height = if (errorCount > 0)
                                 then Left $ head errors
                                 else Right x
@@ -255,7 +255,7 @@ Java 2D.  <p/> This method uses the Oracle-encouraged method of
 the given interpolation hint value used to indicate the method that
 {@link Graphics2D} should use when scaling the image.
 --}
-scaleImage2d :: BufferedImage -> Int -> Int -> Int -> IO (RuleError | BufferedImage)
+scaleImage2d :: BufferedImage -> Int -> Int -> Int -> IO (BarberError | BufferedImage)
 scaleImage2d src width height hint =
   let validation = validateCrop 0 0 width height in
   case (validation) of
