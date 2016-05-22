@@ -1,0 +1,26 @@
+== Versions
+
+This is the compatibility version table of the current Barber release:
+
+.Compatibility table
+|===
+
+|name|version
+
+|barber
+|{barber-version}
+
+|frege-core
+|{frege-version}
+
+|frege-repl
+|{frege-repl}
+
+|jdk
+|{target-jdk}+
+|===
+
+IMPORTANT: Because Frege is evolving at fast pace, at least at the
+moment, Barber is trying to follow latest versions of Frege. That's
+why I thought it would be important to have a chapter where users
+would see a compatibility table of the current release.

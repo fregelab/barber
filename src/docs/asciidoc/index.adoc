@@ -1,5 +1,5 @@
 = Barber
-:revnumber: 0.1.0
+:revnumber: {release-version}
 :numbered:
 :imagesDir: images/
 :baseDir: ../../..
@@ -12,6 +12,8 @@ is mainly to cut, dress, groom, style and shave men's and boys' hair..."
 -- https://en.wikipedia.org/wiki/Barber
 
 include::intro.adoc[]
+
+include::versions.adoc[]
 
 include::io.adoc[]
 

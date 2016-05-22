@@ -95,5 +95,10 @@ asciidoctor {
                icons               : 'font',
                toclevels           : 3,
                stylesheet          : 'css/barber.css',
-               'pdf-style'         : 'default'
+               'pdf-style'         : 'default',
+               'release-version'   : releaseVersion,
+               'frege-version'     : libraries.frege_core,
+               'frege-repl'        : libraries.frege_repl,
+               'target-jdk'        : libraries.jdk,
+               'barber-version'    : releaseVersion
 }
